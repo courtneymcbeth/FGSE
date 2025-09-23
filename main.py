@@ -137,7 +137,7 @@ def test_for_all_saved_weights(model, test_loader, choose_best_in_terms_of):
     best_i = -1
     for i, w_name in enumerate(weight_list):
         print(f"TESTING {w_name}:")
-        checkpoint = torch.load(w_name)
+        checkpoint = torch.load(w_name, weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         returned_dict, _ = run_one_epoch(model, test_loader, 'test', epoch=int((w_name[-7:-3])))
         cv_list.append(returned_dict)
@@ -276,11 +276,11 @@ if __name__ == "__main__":
 
     if args.scheduler_step_size != -1:
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.scheduler_step_size,
-                                                    gamma=args.scheduler_gamma, verbose=True)
+                                                    gamma=args.scheduler_gamma)
     
     else:
         # TODO: bunu loss a bakmak yerine f1 a bakarak yapmak daha mantıklı olabilir
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=args.scheduler_gamma, patience=4, verbose=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=args.scheduler_gamma, patience=4)
 
 
     scaler = torch.cuda.amp.GradScaler()
@@ -299,7 +299,7 @@ if __name__ == "__main__":
     # Load saved models if required
     if args.restore is not None:
         assert args.restored_name is not None, "restored_name must be provided if restore is not None"
-        checkpoint = torch.load(opj("saved_models", f"{args.restored_name}", f"model_epoch{args.restore:0>4}.pt"))
+        checkpoint = torch.load(opj("saved_models", f"{args.restored_name}", f"model_epoch{args.restore:0>4}.pt"), weights_only=False)
 
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         model.load_state_dict(checkpoint["model_state_dict"])

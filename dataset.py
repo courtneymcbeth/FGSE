@@ -250,7 +250,7 @@ def _get_graph(relation_json, object_json, vf_path, gt_actions, frame, subject, 
 
     
     if vf_path is not None:
-        vis_feat=torch.load(vf_path)
+        vis_feat=torch.load(vf_path, weights_only=False)
 
 
     if len(curr_relations) == 0 or len(curr_objects) == 0:
@@ -921,7 +921,7 @@ class BimanualDataset(gDataset):
     def get(self, idx: int) -> gData:
 
         path, global_idx = self.mapping[idx]
-        data = torch.load(opj(self.processed_dir, path))
+        data = torch.load(opj(self.processed_dir, path), weights_only=False)
 
         return global_idx, data
 

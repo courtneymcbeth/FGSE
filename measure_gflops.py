@@ -166,7 +166,7 @@ if __name__ == "__main__":
     
     if weight_list:
         best_model_path = weight_list[-1]  # Use the latest model by default
-        checkpoint = torch.load(best_model_path)
+        checkpoint = torch.load(best_model_path, weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         print(f"Model restored from {best_model_path}")
     else:

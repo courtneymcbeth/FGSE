@@ -164,7 +164,7 @@ if __name__ == "__main__":
     # Load saved models if required
     if args.restore is not None:
         assert args.restored_name is not None, "restored_name must be provided if restore is not None"
-        checkpoint = torch.load(opj(f"saved_{args.restored_name}", f"model_epoch{args.restore:0>4}.pt"))
+        checkpoint = torch.load(opj(f"saved_{args.restored_name}", f"model_epoch{args.restore:0>4}.pt"), weights_only=False)
         model.load_state_dict(checkpoint["model_state_dict"])
         print(f"Model is restored successfully from epoch {args.restore}!")
 

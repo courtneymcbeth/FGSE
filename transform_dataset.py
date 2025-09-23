@@ -19,7 +19,7 @@ def transform_datapoint(datapoint_path):
     # This is actually very similar to flatten_scene_graphs function in bimanual's original code
     # This function is not sensitive to multiple occurences of the same object as in the original code
  
-    data = torch.load(datapoint_path)
+    data = torch.load(datapoint_path, weights_only=False)
     # data=[Data(x=torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), edge_index=torch.tensor([[0, 1], [1, 2]]).T, edge_attr=torch.tensor([[0,0,1,1], [1,1,2,2]]), y=torch.tensor([1])),
     #       Data(x=torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), edge_index=torch.tensor([[0, 2], [1, 2]]).T, edge_attr=torch.tensor([[0,0,2,2], [1,1,2,2]]), y=torch.tensor([2])),
     #       Data(x=torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), edge_index=torch.tensor([[0, 1], [0, 2]]).T, edge_attr=torch.tensor([[0,0,1,1], [0,0,2,2]]), y=torch.tensor([3]))
