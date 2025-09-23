@@ -183,7 +183,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
     torch.cuda.manual_seed(args.seed)
-    # torch.use_deterministic_algorithms(mode=True, warn_only=True) # This throws an error
+    torch.use_deterministic_algorithms(mode=True, warn_only=True)  # Enabled for PyTorch 2.8.0+
     torch_generator = torch.Generator()
     torch_generator.manual_seed(args.seed)
 

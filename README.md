@@ -1,6 +1,6 @@
 # Real-Time Manipulation Action Recognition with a Factorized Graph Sequence Encoder
-<img width="525" height="270" alt="image" src="https://github.com/user-attachments/assets/cb5bb7dc-8ba3-4582-9577-718ad771e04b" />
 
+<img width="525" height="270" alt="image" src="https://github.com/user-attachments/assets/cb5bb7dc-8ba3-4582-9577-718ad771e04b" />
 
 [[Arxiv version](https://arxiv.org/abs/2503.12034)]
 
@@ -15,7 +15,9 @@ conda create -n pyg_env python=3.8
 
 conda activate pyg_env
 
-conda install pytorch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 pytorch-cuda=11.8 -c pytorch -c nvidia
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+# Or for the latest PyTorch (2.8.0+):
+# conda install pytorch torchvision torchaudio -c pytorch
 
 conda install pyg=2.4 -c pyg
 

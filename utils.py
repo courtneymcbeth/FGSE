@@ -15,12 +15,8 @@ import torch
 from torchmetrics.classification import (MulticlassConfusionMatrix,
                                          MulticlassF1Score)
 
-# functorch was merged into pytorch after certain version. I used try-except to make it compatible with both versions
-try: 
-    torch_vmap = torch.vmap
-except AttributeError:
-    import functorch
-    torch_vmap = functorch.vmap
+# functorch was merged into pytorch in version 2.0+. Using torch.vmap directly for PyTorch 2.8.0+
+torch_vmap = torch.vmap
 
 
 from dataset import ACTIONS
@@ -582,7 +578,7 @@ def calc_metrics_at_once(all_arr, mapping, num_classes, temporal_length, downsam
         f1_micro(torch.tensor(y_pred_MR), torch.tensor(y_true_L))
 
         # Conf mat
-        # To ignore warnings about nan values in confusion matrix and functorch's performance drop
+        # To ignore warnings about nan values in confusion matrix and torch.vmap performance drop
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*NaN values found in confusion matrix.*', UserWarning)
 
