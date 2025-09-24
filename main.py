@@ -3,6 +3,7 @@ import os
 import pickle
 import random
 import time
+import tqdm
 from os.path import join as opj
 
 import matplotlib
@@ -50,6 +51,10 @@ def run_one_epoch(model: torch.nn.Module, loader: DataLoader, mode: str, epoch: 
     metrics = Metrics(len(ACTIONS), args.temporal_length, args.downsample, device, dataset_mapping, mode, seg_save_dir, args.weighted_mv)
     
 
+    # Use a tqdm progress bar with a known total so it displays correctly
+    total_steps = len(loader)
+    desc = f"{mode} epoch {epoch}"
+    pbar = tqdm.tqdm(total=total_steps, desc=desc)
     for step, unpackable in enumerate(loader):
         idxes, data = unpackable
 
@@ -64,7 +69,7 @@ def run_one_epoch(model: torch.nn.Module, loader: DataLoader, mode: str, epoch: 
 
         # gt_reordered: [temporal_length, 2*batch_size(left, ..., left, right, ..., right) , num_classes]
 
-        with torch.cuda.amp.autocast(enabled=not args.no_amp):
+        with torch.amp.autocast('cuda', enabled=not args.no_amp):
             pred = model(data)
 
             pred_flattened = pred.flatten(0, 1)
@@ -100,6 +105,15 @@ def run_one_epoch(model: torch.nn.Module, loader: DataLoader, mode: str, epoch: 
         if mode != "test":
             wandb.log({f"{mode}/batch": {'top1_F1': step_f1_top1, 'top3_F1': step_f1_top3, "Loss": loss.item()}, 'batch': step})
 
+        # update progress bar
+        try:
+            pbar.update(1)
+            # set postfix with some quick stats
+            pbar.set_postfix({'loss': f"{loss.item():.4f}", 'top1_F1': f"{step_f1_top1:.3f}"})
+        except Exception:
+            # tqdm update shouldn't crash training; ignore if it does
+            pass
+
         if mode == "test" and args.save_incorrects:
             raise NotImplementedError("save_incorrects may be broken, please check it")
             # visualize_incorrect_preds(pred_top_1, ground_truth, idxes, num_of_samples=4, test_idx_sample_mapping=dataset_mapping["test"]["sample"])
@@ -109,6 +123,7 @@ def run_one_epoch(model: torch.nn.Module, loader: DataLoader, mode: str, epoch: 
         #     break
 
     # End of for loop
+    pbar.close()
     
     metric_dict = metrics.compute()
 
@@ -183,7 +198,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
     torch.cuda.manual_seed(args.seed)
-    torch.use_deterministic_algorithms(mode=True, warn_only=True)  # Enabled for PyTorch 2.8.0+
+    # torch.use_deterministic_algorithms(mode=True, warn_only=True)  # Enabled for PyTorch 2.8.0+
     torch_generator = torch.Generator()
     torch_generator.manual_seed(args.seed)
 
@@ -283,7 +298,7 @@ if __name__ == "__main__":
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=args.scheduler_gamma, patience=4)
 
 
-    scaler = torch.cuda.amp.GradScaler()
+    scaler = torch.amp.GradScaler('cuda')
 
     # loss weights can be used to balance the classes using different strategies
     loss_weights = get_loss_weights(args.weighted_loss, train_set.distribution)
